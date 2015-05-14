@@ -8,7 +8,12 @@ JSDOCParser.prototype.formatType = function (t) {
   if (typeof t.names === 'undefined') {
     return [];
   }
-  return t.names;
+  return t.names.map(function (name) {
+    if (name.indexOf('~') !== -1) {
+      return 'any';
+    }
+    return name;
+  });
 };
 
 JSDOCParser.prototype.formatReturn = function (r) {
