@@ -2,9 +2,20 @@
 var JSDOCParser = function () {};
 
 JSDOCParser.prototype.formatTypeName = function (name) {
+
+  // TODO: figure out how to handle these
   if (name.indexOf('~') !== -1) {
     return 'any';
   }
+
+  // rewrite arrays
+  var re = /Array\.<([^>]+)>/;
+  var m = re.exec(name);
+  if (m !== null) {
+    return this.formatType(m[1]) + "[]";
+  }
+
+  // don't use wrapped types
   switch (name) {
     case 'String':
       return 'string';
@@ -14,6 +25,8 @@ JSDOCParser.prototype.formatTypeName = function (name) {
       return 'boolean';
     case 'Object':
       return 'any';
+    case 'Array':
+      return 'any[]';
     default:
       return name;
   }
