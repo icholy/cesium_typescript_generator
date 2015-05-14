@@ -92,7 +92,7 @@ JSDOCParser.prototype.parse = function (results) {
   };
 
   var isProperty = function (r) {
-    if (r.kind !== 'member') {
+    if (r.kind !== 'member' && r.kind !== 'constant') {
       return false;
     }
     if (r.type === 'undefined') {
@@ -123,7 +123,6 @@ JSDOCParser.prototype.parse = function (results) {
       constructor:      _this.formatParams(c.params),
       methods:          instance.filter(isFunction).map(_this.formatMethod.bind(_this)),
       properties:       instance.filter(isProperty).map(_this.formatProperty.bind(_this)),
-      constants:        members.filter(isConstant).map(_this.formatProperty.bind(_this)),
       staticProperties: static.filter(isProperty).map(_this.formatProperty.bind(_this)),
       staticMethods:    static.filter(isFunction).map(_this.formatMethod.bind(_this))
     };

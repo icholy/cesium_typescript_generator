@@ -11,6 +11,10 @@ DefinitionGenerator.prototype.property = function (p) {
   return s + ";";
 };
 
+DefinitionGenerator.prototype.staticProperty = function (p) {
+  return "static " + this.property(p);
+};
+
 DefinitionGenerator.prototype.method = function (m) {
   var _this = this;
   var s = m.name + "(" + _this.parameters(m.params) + ")";
@@ -18,6 +22,10 @@ DefinitionGenerator.prototype.method = function (m) {
     s += ": " + m.returns.join("|");
   }
   return s + ";";
+};
+
+DefinitionGenerator.prototype.staticMethod = function (m) {
+  return "static " + this.method(m);
 };
 
 DefinitionGenerator.prototype.parameters = function (parameters) {
@@ -106,11 +114,20 @@ DefinitionGenerator.prototype.clazz = function (c) {
     s += _this.indent + _this.property(prop) + "\n";
   });
 
+  c.staticProperties.forEach(function (prop) {
+    s += _this.indent + _this.staticProperty(prop) + "\n";
+  })
+
   s += _this.indent + "constructor(" + _this.parameters(c.constructor) + ");\n";
 
   c.methods.forEach(function (method) {
     s += _this.indent + _this.method(method) + "\n";
   });
+
+  c.staticMethods.forEach(function (method) {
+    s += _this.indent + _this.staticMethod(method) + "\n";
+  });
+
   return s + "}";
 };
 
