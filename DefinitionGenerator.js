@@ -1,6 +1,4 @@
 
-var fs = require('fs');
-
 var DefinitionGenerator = function () {
   this.indent = "    ";
 };
@@ -100,23 +98,27 @@ DefinitionGenerator.prototype.parameters = function (parameters) {
 
 DefinitionGenerator.prototype.clazz = function (c) {
 
-  var s = "declare class " + c.name + "{\n";
+  var _this = this;
+
+  var s = "declare class " + c.name + " {\n";
 
   c.properties.forEach(function (prop) {
     s += _this.indent + _this.property(prop) + "\n";
-  })
+  });
 
   s += _this.indent + "constructor(" + _this.parameters(c.constructor) + ");\n";
 
   c.methods.forEach(function (method) {
     s += _this.indent + _this.method(method) + "\n";
   });
-
   return s + "}";
 };
 
-DefinitionGenerator.prototype.generate = function (c) {
-  return this.clazz(c);
+DefinitionGenerator.prototype.generate = function (info) {
+  var _this = this;
+  return info.reduce(function (s, c) {
+    return s + "\n\n" + _this.clazz(c);
+  }, "");
 };
 
 module.exports = DefinitionGenerator;

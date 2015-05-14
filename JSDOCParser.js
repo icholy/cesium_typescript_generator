@@ -1,6 +1,4 @@
 
-var fs = require('fs');
-
 var JSDOCParser = function () {};
 
 JSDOCParser.prototype.formatType = function (t) {
@@ -114,7 +112,7 @@ JSDOCParser.prototype.parse = function (results) {
     var members = results.filter(isMemberOf(c.name));
     return {
       name:        c.name,
-      constructor: this.formatParams(c.params),
+      constructor: _this.formatParams(c.params),
       methods:     members.filter(isMethod).map(_this.formatMethod.bind(_this)),
       properties:  members.filter(isProperty).map(_this.formatProperty.bind(_this))
     };
