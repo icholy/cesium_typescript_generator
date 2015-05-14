@@ -6,7 +6,7 @@ var DefinitionGenerator = function () {
 DefinitionGenerator.prototype.property = function (p) {
   var s = p.name;
   if (p.type.length !== 0) {
-    s += ": " + p.type.join("|");
+    s += ": " + this.type(p.type);
   }
   return s + ";";
 };
@@ -28,46 +28,84 @@ DefinitionGenerator.prototype.staticMethod = function (m) {
   return "static " + this.method(m);
 };
 
-DefinitionGenerator.prototype.parameters = function (parameters) {
+DefinitionGenerator.prototype.consolodateNestedTypes = function (items) {
 
-  var paramMap  = {};
-  var paramList = [];
+  var itemMap  = {};
+  var itemList = [];
 
-  parameters.forEach(function (p) {
+  items.forEach(function (item) {
 
-    if (p.name.indexOf(".") === -1) {
-      paramMap[p.name] = p;
-      paramList.push(p);
+    if (item.name.indexOf(".") === -1) {
+      itemMap[item.name] = item;
+      itemList.push(item);
       return;
     }
 
-    var parts      = p.name.split(".");
+    var parts      = item.name.split(".");
     var parentName = parts[0];
     var childName  = parts.slice(1).join("");
-    var parent     = paramMap[parentName];
+    var parent     = itemMap[parentName];
 
     if (typeof parent === 'undefined') {
       parent = {
         name: parentName,
         type: [{}]
       };
-      paramMap[parentName] = parent;
+      itemMap[parentName] = parent;
     }
 
     var typeObj = parent.type[0];
-    if (typeof obj !== 'object') {
+    if (typeof typeObj !== 'object') {
       typeObj = {};
       parent.type[0] = typeObj;
     }
 
-    typeObj[childName] = { type: p.type };
-    if (p.optional === true) {
+    typeObj[childName] = { type: item.type };
+    if (item.optional === true) {
       typeObj[childName].optional = true;
     }
 
   });
 
-  return paramList.map(function (p) {
+  return itemList;
+};
+
+DefinitionGenerator.prototype.type = function (type) {
+  var s = "";
+  if (typeof type[0] === 'object') {
+    
+    var typeObj = type[0];
+    
+    s += "{ ";
+
+    s += Object.keys(typeObj).map(function (name) {
+
+      var p = typeObj[name];
+      var s = name;
+
+      if (p.optional === true) {
+        s += "?";
+      }
+
+      s += ": " + p.type.join("|");
+      return s;
+    }).join("; ");
+
+    s += " }";
+
+  } else {
+    s += type.join("|");
+  }
+  return s;
+};
+
+DefinitionGenerator.prototype.parameters = function (parameters) {
+
+  var _this = this;
+
+  var parameters = this.consolodateNestedTypes(parameters);
+
+  return parameters.map(function (p) {
 
     var s = p.name;
 
@@ -75,32 +113,7 @@ DefinitionGenerator.prototype.parameters = function (parameters) {
       s += "?";
     }
 
-    if (typeof p.type[0] === 'object') {
-      
-      var typeObj = p.type[0];
-      
-      s += ": { ";
-
-      s += Object.keys(typeObj).map(function (name) {
-
-        var p = typeObj[name];
-        var s = name;
-
-        if (p.optional === true) {
-          s += "?";
-        }
-
-        s += ": " + p.type.join("|");
-        return s;
-      }).join("; ");
-
-      s += " }";
-
-    } else {
-      s += ": " + p.type.join("|");
-    }
-
-    return s;
+    return s + ": " + _this.type(p.type);
   }).join(", ");
 };
 
@@ -110,11 +123,11 @@ DefinitionGenerator.prototype.clazz = function (c) {
 
   var s = "declare class " + c.name + " {\n";
 
-  c.properties.forEach(function (prop) {
+  _this.consolodateNestedTypes(c.properties).forEach(function (prop) {
     s += _this.indent + _this.property(prop) + "\n";
   });
 
-  c.staticProperties.forEach(function (prop) {
+  _this.consolodateNestedTypes(c.staticProperties).forEach(function (prop) {
     s += _this.indent + _this.staticProperty(prop) + "\n";
   })
 
