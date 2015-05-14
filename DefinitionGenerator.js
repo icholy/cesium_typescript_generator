@@ -71,6 +71,15 @@ DefinitionGenerator.prototype.consolodateNestedTypes = function (items) {
 };
 
 DefinitionGenerator.prototype.type = function (type) {
+
+  if (type.length === 0) {
+    return [];
+  }
+
+  type = type.filter(function (t) {
+    return t !== 'undefined';
+  });
+
   var s = "";
   if (typeof type[0] === 'object') {
     
