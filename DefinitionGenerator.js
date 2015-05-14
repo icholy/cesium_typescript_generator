@@ -138,7 +138,7 @@ DefinitionGenerator.prototype.generate = function (info) {
     s += "\n\n" + _this.clazz(c);
   })
   info.functions.forEach(function (f) {
-    s += "\n" + "function "  + _this.method(f);
+    s += "\n" + "declare function "  + _this.method(f);
   });
   return s;
 };
