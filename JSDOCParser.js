@@ -84,6 +84,20 @@ JSDOCParser.prototype.formatParams = function (params) {
 
 JSDOCParser.prototype.parse = function (results) {
 
+  var isDocumented = function (r) {
+    if (r.undocumented === true) {
+      return false;
+    }
+    return true;
+  };
+
+  var isPublic = function (r) {
+    if (r.access === "private") {
+      return false;
+    }
+    return true;
+  };
+
   var isInstance = function (r) {
     return r.scope === 'instance';
   };
@@ -93,7 +107,13 @@ JSDOCParser.prototype.parse = function (results) {
   };
 
   var isClass = function (r) {
-    return r.kind === 'class';
+    if (r.kind !== 'class') {
+      return false;
+    }
+    if (typeof r.memberof !== 'undefined') {
+      return false;
+    }
+    return true;
   };
 
   var isMemberOf = function (type) {
@@ -146,9 +166,11 @@ JSDOCParser.prototype.parse = function (results) {
 
   var _this = this;
 
-  var classes = results.filter(isClass).map(function (c) {
+  var documented = results.filter(isPublic).filter(isDocumented);
 
-    var members = results.filter(isMemberOf(c.name));
+  var classes = documented.filter(isClass).map(function (c) {
+
+    var members = documented.filter(isMemberOf(c.name));
     var instance = members.filter(isInstance);
     var static   = members.filter(isStatic);
 
@@ -162,7 +184,7 @@ JSDOCParser.prototype.parse = function (results) {
     };
   });
 
-  var functions = results.filter(isGlobalFunction).map(_this.formatMethod.bind(_this));
+  var functions = documented.filter(isGlobalFunction).map(_this.formatMethod.bind(_this));
 
   return {
     classes: classes,
