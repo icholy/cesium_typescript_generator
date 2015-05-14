@@ -81,6 +81,19 @@ JSDOCParser.prototype.parse = function (results) {
     };
   };
 
+  var isGlobalFunction = function (r) {
+    if (r.kind !== 'module') {
+      return false;
+    }
+    if (typeof r.params === 'undefined') {
+      return false;
+    }
+    if (r.access === "private") {
+      return false;
+    }
+    return true;
+  };
+
   var isFunction = function (r) {
     if (r.kind !== 'function') {
       return false;
@@ -109,10 +122,10 @@ JSDOCParser.prototype.parse = function (results) {
       return false;
     }
   };
-  
+
   var _this = this;
 
-  return results.filter(isClass).map(function (c) {
+  var classes = results.filter(isClass).map(function (c) {
 
     var members = results.filter(isMemberOf(c.name));
     var instance = members.filter(isInstance);
@@ -127,6 +140,13 @@ JSDOCParser.prototype.parse = function (results) {
       staticMethods:    static.filter(isFunction).map(_this.formatMethod.bind(_this))
     };
   });
+
+  var functions = results.filter(isGlobalFunction).map(_this.formatMethod.bind(_this));
+
+  return {
+    classes: classes,
+    functions: functions
+  };
 };
 
 module.exports = JSDOCParser;

@@ -133,9 +133,14 @@ DefinitionGenerator.prototype.clazz = function (c) {
 
 DefinitionGenerator.prototype.generate = function (info) {
   var _this = this;
-  return info.reduce(function (s, c) {
-    return s + "\n\n" + _this.clazz(c);
-  }, "");
+  var s = "";
+  info.classes.forEach(function (c) {
+    s += "\n\n" + _this.clazz(c);
+  })
+  info.functions.forEach(function (f) {
+    s += "\n" + "function "  + _this.method(f);
+  });
+  return s;
 };
 
 module.exports = DefinitionGenerator;
