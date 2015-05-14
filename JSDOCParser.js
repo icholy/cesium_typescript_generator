@@ -1,7 +1,26 @@
 
 var JSDOCParser = function () {};
 
+JSDOCParser.prototype.formatTypeName = function (name) {
+  if (name.indexOf('~') !== -1) {
+    return 'any';
+  }
+  switch (name) {
+    case 'String':
+      return 'string';
+    case 'Number':
+      return 'number';
+    case 'Boolean':
+      return 'boolean';
+    case 'Object':
+      return 'any';
+    default:
+      return name;
+  }
+};
+
 JSDOCParser.prototype.formatType = function (t) {
+  var _this = this;
   if (typeof t === 'undefined') {
     return [];
   }
@@ -9,10 +28,7 @@ JSDOCParser.prototype.formatType = function (t) {
     return [];
   }
   return t.names.map(function (name) {
-    if (name.indexOf('~') !== -1) {
-      return 'any';
-    }
-    return name;
+    return _this.formatTypeName(name);
   });
 };
 
