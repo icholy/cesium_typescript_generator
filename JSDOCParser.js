@@ -63,8 +63,12 @@ JSDOCParser.prototype.formatParams = function (params) {
 
 JSDOCParser.prototype.parse = function (results) {
 
-  var isPublic = function (r) {
+  var isInstance = function (r) {
     return r.scope === 'instance';
+  };
+
+  var isStatic = function (r) {
+    return r.scope === 'static';
   };
 
   var isClass = function (r) {
@@ -77,10 +81,7 @@ JSDOCParser.prototype.parse = function (results) {
     };
   };
 
-  var isMethod = function (r) {
-    if(!isPublic(r)) {
-      return false;
-    }
+  var isFunction = function (r) {
     if (r.kind !== 'function') {
       return false;
     }
@@ -91,9 +92,6 @@ JSDOCParser.prototype.parse = function (results) {
   };
 
   var isProperty = function (r) {
-    if (!isPublic(r)) {
-      return false;
-    }
     if (r.kind !== 'member') {
       return false;
     }
@@ -106,15 +104,28 @@ JSDOCParser.prototype.parse = function (results) {
     return true;
   };
 
+  var isConstant = function (r) {
+    if (r.kind !== "constant") {
+      return false;
+    }
+  };
+  
   var _this = this;
 
   return results.filter(isClass).map(function (c) {
+
     var members = results.filter(isMemberOf(c.name));
+    var instance = members.filter(isInstance);
+    var static   = members.filter(isStatic);
+
     return {
-      name:        c.name,
-      constructor: _this.formatParams(c.params),
-      methods:     members.filter(isMethod).map(_this.formatMethod.bind(_this)),
-      properties:  members.filter(isProperty).map(_this.formatProperty.bind(_this))
+      name:             c.name,
+      constructor:      _this.formatParams(c.params),
+      methods:          instance.filter(isFunction).map(_this.formatMethod.bind(_this)),
+      properties:       instance.filter(isProperty).map(_this.formatProperty.bind(_this)),
+      constants:        members.filter(isConstant).map(_this.formatProperty.bind(_this)),
+      staticProperties: static.filter(isProperty).map(_this.formatProperty.bind(_this)),
+      staticMethods:    static.filter(isFunction).map(_this.formatMethod.bind(_this))
     };
   });
 };
