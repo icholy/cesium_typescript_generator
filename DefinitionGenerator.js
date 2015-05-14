@@ -19,7 +19,7 @@ DefinitionGenerator.prototype.method = function (m) {
   var _this = this;
   var s = m.name + "(" + _this.parameters(m.params) + ")";
   if (m.returns && m.returns.length !== 0) {
-    s += ": " + m.returns.join("|");
+    s += ": " + _this.type(m.returns);
   }
   return s + ";";
 };

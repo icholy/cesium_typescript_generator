@@ -29,6 +29,8 @@ JSDOCParser.prototype.formatTypeName = function (name) {
       return 'any[]';
     case 'function':
       return 'Function';
+    case '*':
+      return 'any';
     default:
       return name;
   }
