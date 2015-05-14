@@ -16,17 +16,19 @@ JSDOCParser.prototype.formatTypeName = function (name) {
   }
 
   // don't use wrapped types
-  switch (name) {
-    case 'String':
+  switch (name.toLowerCase()) {
+    case 'string':
       return 'string';
-    case 'Number':
+    case 'number':
       return 'number';
-    case 'Boolean':
+    case 'boolean':
       return 'boolean';
-    case 'Object':
+    case 'object':
       return 'any';
-    case 'Array':
+    case 'array':
       return 'any[]';
+    case 'function':
+      return 'Function';
     default:
       return name;
   }
