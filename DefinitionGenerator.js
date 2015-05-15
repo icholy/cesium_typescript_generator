@@ -130,7 +130,7 @@ DefinitionGenerator.prototype.clazz = function (c) {
 
   var _this = this;
 
-  var s = "declare class " + c.name + " {\n";
+  var s = "class " + c.name + " {\n";
 
   _this.consolodateNestedTypes(c.properties).forEach(function (prop) {
     s += _this.indent + _this.property(prop) + "\n";
@@ -169,10 +169,10 @@ DefinitionGenerator.prototype.generate = function (info) {
   var _this = this;
   var s = "";
   info.classes.forEach(function (c) {
-    s += "\n\nexport" + _this.clazz(c);
+    s += "\n\n" + _this.clazz(c);
   })
   info.functions.forEach(function (f) {
-    s += "\n" + "export function "  + _this.method(f);
+    s += "\n" + "function "  + _this.method(f);
   });
   info.namespaces.forEach(function (n) {
     s += "\n\n" + _this.module(n);
