@@ -6,7 +6,7 @@ var DefinitionGenerator = function () {
 DefinitionGenerator.prototype.property = function (p) {
   var s = p.name;
   if (p.type.length !== 0) {
-    s += ": " + this.type(p.type);
+    s += this.type(p.type);
   }
   return s + ";";
 };
@@ -19,7 +19,7 @@ DefinitionGenerator.prototype.method = function (m) {
   var _this = this;
   var s = m.name + "(" + _this.parameters(m.params) + ")";
   if (m.returns && m.returns.length !== 0) {
-    s += ": " + _this.type(m.returns);
+    s += _this.type(m.returns);
   }
   return s + ";";
 };
@@ -72,15 +72,15 @@ DefinitionGenerator.prototype.consolodateNestedTypes = function (items) {
 
 DefinitionGenerator.prototype.type = function (type) {
 
-  if (type.length === 0) {
-    return [];
-  }
-
   type = type.filter(function (t) {
     return t !== 'undefined';
   });
 
-  var s = "";
+  if (type.length === 0) {
+    return "";
+  }
+
+  var s = ": ";
   if (typeof type[0] === 'object') {
     
     var typeObj = type[0];
@@ -122,7 +122,7 @@ DefinitionGenerator.prototype.parameters = function (parameters) {
       s += "?";
     }
 
-    return s + ": " + _this.type(p.type);
+    return s + _this.type(p.type);
   }).join(", ");
 };
 
@@ -153,15 +153,21 @@ DefinitionGenerator.prototype.clazz = function (c) {
   return s + "}";
 };
 
-DefinitionGenerator.prototype.module = function (n) {
+DefinitionGenerator.prototype.enum = function (n) {
+  var _this = this;
+  var s = "enum " + n.name + " {\n";
+  n.properties.forEach(function (p) {
+    s += _this.indent + p.name + ",\n";
+  });
+  return s + "}";
+};
+
+DefinitionGenerator.prototype.namespace = function (n) {
   var _this = this;
   var s = "module " + n.name + " {\n";
-  n.properties.forEach(function (p) {
-    s += _this.indent + "var " + _this.property(p) + "\n";
-  });
   n.methods.forEach(function (method) {
     s += _this.indent + "function " + _this.method(method) + "\n";
-  })
+  });
   return s + "}";
 };
 
@@ -175,7 +181,12 @@ DefinitionGenerator.prototype.generate = function (info) {
     s += "\n" + "function "  + _this.method(f);
   });
   info.namespaces.forEach(function (n) {
-    s += "\n\n" + _this.module(n);
+    if (n.properties.length !== 0) {
+      s += "\n\n" + _this.enum(n);
+    }
+    if (n.methods.length !== 0) {
+      s += "\n\n" + _this.namespace(n);
+    }
   });
   return s;
 };
