@@ -181,6 +181,10 @@ JSDOCParser.prototype.parse = function (results) {
     }
   };
 
+  var isNamespace = function (r) {
+    return r.kind === 'namespace';
+  };
+
   var _this = this;
 
   var documented = results.filter(isPublic).filter(isDocumented);
@@ -203,9 +207,21 @@ JSDOCParser.prototype.parse = function (results) {
 
   var functions = documented.filter(isGlobalFunction).map(_this.formatMethod.bind(_this));
 
+  var namespaces = documented.filter(isNamespace).map(function (n) {
+
+    var members = documented.filter(isMemberOf(n.name));
+
+    return {
+      name:       n.name,
+      properties: members.filter(isProperty).map(_this.formatProperty.bind(_this)),
+      methods:    members.filter(isFunction).map(_this.formatMethod.bind(_this))
+    };
+  });
+
   return {
-    classes: classes,
-    functions: functions
+    classes:    classes,
+    functions:  functions,
+    namespaces: []
   };
 };
 
