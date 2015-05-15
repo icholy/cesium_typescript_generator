@@ -153,14 +153,29 @@ DefinitionGenerator.prototype.clazz = function (c) {
   return s + "}";
 };
 
+DefinitionGenerator.prototype.module = function (n) {
+  var _this = this;
+  var s = "module " + n.name + " {\n";
+  n.properties.forEach(function (p) {
+    s += _this.indent + "var " + _this.property(p) + "\n";
+  });
+  n.methods.forEach(function (method) {
+    s += _this.indent + "function " + _this.method(method) + "\n";
+  })
+  return s + "}";
+};
+
 DefinitionGenerator.prototype.generate = function (info) {
   var _this = this;
   var s = "";
   info.classes.forEach(function (c) {
-    s += "\n\n" + _this.clazz(c);
+    s += "\n\nexport" + _this.clazz(c);
   })
   info.functions.forEach(function (f) {
-    s += "\n" + "declare function "  + _this.method(f);
+    s += "\n" + "export function "  + _this.method(f);
+  });
+  info.namespaces.forEach(function (n) {
+    s += "\n\n" + _this.module(n);
   });
   return s;
 };

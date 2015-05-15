@@ -182,7 +182,10 @@ JSDOCParser.prototype.parse = function (results) {
   };
 
   var isNamespace = function (r) {
-    return r.kind === 'namespace';
+    if (r.kind !== 'namespace') {
+      return false;
+    }
+    return true;
   };
 
   var _this = this;
@@ -221,7 +224,7 @@ JSDOCParser.prototype.parse = function (results) {
   return {
     classes:    classes,
     functions:  functions,
-    namespaces: []
+    namespaces: namespaces
   };
 };
 
