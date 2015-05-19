@@ -28,6 +28,23 @@ DefinitionGenerator.prototype.staticMethod = function (m) {
   return "static " + this.method(m);
 };
 
+DefinitionGenerator.prototype.fixOptionalParameters = function (items) {
+  var optionalIndex = items.reduce(function (optionalIndex, item, i) {
+    if (item.optional === true) {
+      return optionalIndex;
+    }
+    return i;
+  }, 0);
+  items.forEach(function (item, i) {
+    if (i < optionalIndex) {
+      if (typeof item.optional !== 'undefined') {
+        delete item.optional;
+      }
+    }
+  });
+  return items;
+};
+
 DefinitionGenerator.prototype.consolodateNestedTypes = function (items) {
 
   var itemMap  = {};
@@ -114,7 +131,8 @@ DefinitionGenerator.prototype.parameters = function (parameters) {
 
   var _this = this;
 
-  var parameters = this.consolodateNestedTypes(parameters);
+  parameters = this.consolodateNestedTypes(parameters);
+  parameters = this.fixOptionalParameters(parameters);
 
   return parameters.map(function (p) {
 
