@@ -31,6 +31,25 @@ JSDOCParser.prototype.formatTypeName = function (name) {
       return 'Function';
     case '*':
       return 'any';
+    case 'promise':
+      return 'Promise<any>';
+    case 'any':
+      return 'any';
+    case 'image':
+      return 'HTMLImageElement';
+    case 'canvas':
+      return 'HTMLCanvasElement';
+    case 'canvaspixelarray':
+      return 'number[]';
+    case 'typedarray':
+      return '(' + [
+        'Int8Array',
+        'Uint8Array',
+        'Int16Array',
+        'Uint16Array',
+        'Float32Array',
+        'Float64Array'
+      ].join('|') + ')';
     default:
       return name;
   }
