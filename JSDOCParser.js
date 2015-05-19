@@ -12,7 +12,7 @@ JSDOCParser.prototype.formatTypeName = function (name) {
   var re = /Array\.<([^>]+)>/;
   var m = re.exec(name);
   if (m !== null) {
-    return this.formatType(m[1]) + "[]";
+    return this.formatTypeName(m[1]) + "[]";
   }
 
   // don't use wrapped types

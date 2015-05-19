@@ -71,6 +71,8 @@ DefinitionGenerator.prototype.consolodateNestedTypes = function (items) {
 };
 
 DefinitionGenerator.prototype.type = function (type) {
+  
+  var _this = this;
 
   type = type.filter(function (t) {
     return t !== 'undefined';
@@ -96,7 +98,7 @@ DefinitionGenerator.prototype.type = function (type) {
         s += "?";
       }
 
-      s += ": " + p.type.join("|");
+      s += _this.type(p.type);
       return s;
     }).join("; ");
 
