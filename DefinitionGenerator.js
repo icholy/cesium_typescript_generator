@@ -160,7 +160,9 @@ DefinitionGenerator.prototype.clazz = function (c) {
     s += _this.indent + _this.staticProperty(prop) + "\n";
   })
 
-  s += _this.indent + "constructor(" + _this.parameters(c.constructor) + ");\n";
+  if (c.constructor.length !== 0) {
+    s += _this.indent + "constructor(" + _this.parameters(c.constructor) + ");\n";
+  }
 
   c.methods.forEach(function (method) {
     s += _this.indent + _this.method(method) + "\n";
