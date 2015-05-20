@@ -1,0 +1,12 @@
+
+declare module Cesium {
+
+type RenderState = any;
+
+interface Proxy {
+  getURL(resource: string): string;
+}
+
+{{HERE}}
+  
+}

@@ -1,59 +1,7 @@
 
+var TypeParser = require("./TypeParser");
+
 var JSDOCParser = function () {};
-
-JSDOCParser.prototype.formatTypeName = function (name) {
-
-  // TODO: figure out how to handle these
-  if (name.indexOf('~') !== -1) {
-    return 'any';
-  }
-
-  // rewrite arrays
-  var re = /Array\.<([^>]+)>/;
-  var m = re.exec(name);
-  if (m !== null) {
-    return this.formatTypeName(m[1]) + "[]";
-  }
-
-  // don't use wrapped types
-  switch (name.toLowerCase()) {
-    case 'string':
-      return 'string';
-    case 'number':
-      return 'number';
-    case 'boolean':
-      return 'boolean';
-    case 'object':
-      return 'any';
-    case 'array':
-      return 'any[]';
-    case 'function':
-      return 'Function';
-    case '*':
-      return 'any';
-    case 'promise':
-      return 'Promise<any>';
-    case 'any':
-      return 'any';
-    case 'image':
-      return 'HTMLImageElement';
-    case 'canvas':
-      return 'HTMLCanvasElement';
-    case 'canvaspixelarray':
-      return 'number[]';
-    case 'typedarray':
-      return '(' + [
-        'Int8Array',
-        'Uint8Array',
-        'Int16Array',
-        'Uint16Array',
-        'Float32Array',
-        'Float64Array'
-      ].join('|') + ')';
-    default:
-      return name;
-  }
-};
 
 JSDOCParser.prototype.formatType = function (t) {
   var _this = this;
@@ -64,7 +12,7 @@ JSDOCParser.prototype.formatType = function (t) {
     return [];
   }
   return t.names.map(function (name) {
-    return _this.formatTypeName(name);
+    return TypeParser.format(name);
   });
 };
 

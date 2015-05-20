@@ -24,5 +24,15 @@ fs.readFile(input, function (err, data) {
   var info = parser.parse(results);
   var defs = generator.generate(info);
 
-  console.log(defs)
-})
+  fs.readFile('cesium.d.ts.template', function (err, data) {
+
+    if (err) {
+      console.log(err.message);
+      throw err;
+    }
+
+    console.log(
+        data.toString().replace('{{HERE}}', defs));
+  });
+
+});
