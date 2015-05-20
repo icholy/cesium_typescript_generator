@@ -69,17 +69,11 @@ JSDOCParser.prototype.formatParams = function (params) {
 JSDOCParser.prototype.parse = function (results) {
 
   var isDocumented = function (r) {
-    if (r.undocumented === true) {
-      return false;
-    }
-    return true;
+    return r.undocumented !== true;
   };
 
   var isPublic = function (r) {
-    if (r.access === "private") {
-      return false;
-    }
-    return true;
+    return r.access !== "private";
   };
 
   var isInstance = function (r) {
@@ -143,16 +137,15 @@ JSDOCParser.prototype.parse = function (results) {
   };
 
   var isConstant = function (r) {
-    if (r.kind !== "constant") {
-      return false;
-    }
+    return r.kind === 'constant';
   };
 
   var isNamespace = function (r) {
-    if (r.kind !== 'namespace') {
-      return false;
-    }
-    return true;
+    return r.kind === 'namespace';
+  };
+  
+  var isTypeDef = function (r) {
+    return r.kind === 'typedef';
   };
 
   var _this = this;
