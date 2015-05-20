@@ -66,6 +66,16 @@ JSDOCParser.prototype.formatParams = function (params) {
   });
 };
 
+JSDOCParser.prototype.formatTypeDef = function (td) {
+  var _this = this;
+  return {
+    name:    td.name,
+    type:    _this.formatType(td.type),
+    params:  _this.formatParams(td.params),
+    returns: _this.formatReturn(td.returns)
+  };
+};
+
 JSDOCParser.prototype.parse = function (results) {
 
   var isDocumented = function (r) {
@@ -164,7 +174,8 @@ JSDOCParser.prototype.parse = function (results) {
       methods:          instance.filter(isFunction).map(_this.formatMethod.bind(_this)),
       properties:       instance.filter(isProperty).map(_this.formatProperty.bind(_this)),
       staticProperties: static.filter(isProperty).map(_this.formatProperty.bind(_this)),
-      staticMethods:    static.filter(isFunction).map(_this.formatMethod.bind(_this))
+      staticMethods:    static.filter(isFunction).map(_this.formatMethod.bind(_this)),
+      typedefs:         members.filter(isTypeDef).map(_this.formatTypeDef.bind(_this))
     };
   });
 

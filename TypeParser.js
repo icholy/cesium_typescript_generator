@@ -45,9 +45,9 @@ TypeParser.prototype.type = function (parent) {
 };
 
 TypeParser.formatName = function (name) {
-  // TODO: figure out how to handle these
-  if (name.indexOf('~') !== -1) {
-    return 'unknown';
+
+  if (name.indexOf("~") !== -1) {
+    return name.replace("~", ".");
   }
 
   switch (name) {
