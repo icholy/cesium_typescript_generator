@@ -246,6 +246,16 @@ DefinitionGenerator.prototype.generate = function (info) {
   })
   info.functions.forEach(function (f) {
     s += "\n" + "function "  + _this.method(f);
+
+    if (f.typedefs.length !== 0) {
+      s += "\n\nmodule " + f.name + "{\n";
+      f.typedefs.forEach(function (typedef) {
+        s += _this.indent + _this.typeDef(typedef) + "\n";
+      });
+      s += "}";
+    }
+    
+    return s;
   });
   info.namespaces.forEach(function (n) {
     if (n.properties.length !== 0) {

@@ -179,7 +179,10 @@ JSDOCParser.prototype.parse = function (results) {
     };
   });
 
-  var functions = documented.filter(isGlobalFunction).map(_this.formatMethod.bind(_this));
+  var functions = documented.filter(isGlobalFunction).map(_this.formatMethod.bind(_this)).map(function (f) {
+    f.typedefs = documented.filter(isMemberOf(f.name)).filter(isTypeDef).map(_this.formatTypeDef.bind(_this))
+    return f;
+  });
 
   var namespaces = documented.filter(isNamespace).map(function (n) {
 
