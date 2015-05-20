@@ -74,14 +74,14 @@ TypeParser.formatName = function (name) {
     case 'CanvasPixelArray':
       return 'number[]';
     case 'TypedArray':
-      return '(' + [
+      return [
         'Int8Array',
         'Uint8Array',
         'Int16Array',
         'Uint16Array',
         'Float32Array',
         'Float64Array'
-      ].join('|') + ')';
+      ].join('|');
     default:
       return name;
   }
