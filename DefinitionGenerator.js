@@ -6,7 +6,7 @@ var DefinitionGenerator = function () {
 DefinitionGenerator.prototype.property = function (p) {
   var s = p.name;
   if (p.type.length !== 0) {
-    s += this.type(p.type);
+    s += this.typeAnnotation(p.type);
   }
   return s + ";";
 };
@@ -19,7 +19,7 @@ DefinitionGenerator.prototype.method = function (m) {
   var _this = this;
   var s = m.name + "(" + _this.parameters(m.params) + ")";
   if (m.returns && m.returns.length !== 0) {
-    s += _this.type(m.returns);
+    s += _this.typeAnnotation(m.returns);
   }
   return s + ";";
 };
@@ -87,8 +87,7 @@ DefinitionGenerator.prototype.consolodateNestedTypes = function (items) {
   return itemList;
 };
 
-DefinitionGenerator.prototype.type = function (type) {
-  
+DefinitionGenerator.prototype.typeAnnotation = function (type) {
   var _this = this;
 
   type = type.filter(function (t) {
@@ -99,7 +98,27 @@ DefinitionGenerator.prototype.type = function (type) {
     return "";
   }
 
-  var s = ": ";
+  return ": " + _this.type(type);
+};
+
+DefinitionGenerator.prototype.type = function (type) {
+  
+  var _this = this;
+
+  var s = "";
+
+  if (typeof type === 'undefined') {
+    return 'void';
+  }
+
+  type = type.filter(function (t) {
+    return t !== 'undefined';
+  });
+
+  if (type.length === 0) {
+    return "";
+  }
+
   if (typeof type[0] === 'object') {
     
     var typeObj = type[0];
@@ -115,7 +134,7 @@ DefinitionGenerator.prototype.type = function (type) {
         s += "?";
       }
 
-      s += _this.type(p.type);
+      s += _this.typeAnnotation(p.type);
       return s;
     }).join("; ");
 
@@ -142,8 +161,21 @@ DefinitionGenerator.prototype.parameters = function (parameters) {
       s += "?";
     }
 
-    return s + _this.type(p.type);
+    return s + _this.typeAnnotation(p.type);
   }).join(", ");
+};
+
+DefinitionGenerator.prototype.typeDef = function (td) {
+  var _this = this;
+  if (td.type.length === 1 &&
+      (
+        typeof td.params !== 'undefined' ||
+        typeof td.returns !== 'undefined'
+      )) {
+
+    return "type " + td.name + " = " + "(" + _this.parameters(td.params) + ") => " + _this.type(td.returns) + ";";
+  }
+  return "type " + td.name + " = " + _this.type(td.type) + ";";
 };
 
 DefinitionGenerator.prototype.clazz = function (c) {
@@ -172,7 +204,20 @@ DefinitionGenerator.prototype.clazz = function (c) {
     s += _this.indent + _this.staticMethod(method) + "\n";
   });
 
-  return s + "}";
+  s += "}";
+
+  if (c.typedefs.length !== 0) {
+
+    s += "\n\nmodule " + c.name + "{\n";
+
+    c.typedefs.forEach(function (typedef) {
+      s += _this.indent + _this.typeDef(typedef) + "\n";
+    });
+
+    s += "}";
+
+  }
+  return s;
 };
 
 DefinitionGenerator.prototype.enum = function (n) {
