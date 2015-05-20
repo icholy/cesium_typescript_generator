@@ -245,10 +245,10 @@ DefinitionGenerator.prototype.generate = function (info) {
     s += "\n\n" + _this.clazz(c);
   })
   info.functions.forEach(function (f) {
-    s += "\n" + "function "  + _this.method(f);
+    s += "\n\nfunction "  + _this.method(f);
 
     if (f.typedefs.length !== 0) {
-      s += "\n\nmodule " + f.name + "{\n";
+      s += "\n\nmodule " + f.name + " {\n";
       f.typedefs.forEach(function (typedef) {
         s += _this.indent + _this.typeDef(typedef) + "\n";
       });
