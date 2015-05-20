@@ -12,7 +12,7 @@ JSDOCParser.prototype.formatType = function (t) {
     return [];
   }
   return t.names.map(function (name) {
-    return TypeParser.format(name);
+    return TypeParser.reformat(name);
   });
 };
 
