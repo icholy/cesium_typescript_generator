@@ -63,8 +63,8 @@ TypeParser.formatName = function (name) {
       return 'any[]';
     case 'function':
       return 'Function';
-    case '*':
-      return '...any';
+    case 'undefined':
+      return 'void';
     case 'Any':
       return 'any';
     case 'Image':
@@ -73,15 +73,6 @@ TypeParser.formatName = function (name) {
       return 'HTMLCanvasElement';
     case 'CanvasPixelArray':
       return 'number[]';
-    case 'TypedArray':
-      return [
-        'Int8Array',
-        'Uint8Array',
-        'Int16Array',
-        'Uint16Array',
-        'Float32Array',
-        'Float64Array'
-      ].join('|');
     default:
       return name;
   }

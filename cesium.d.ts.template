@@ -3,6 +3,8 @@ declare module Cesium {
 
 type RenderState = any;
 
+type TypedArray = Int8Array|Uint8Array|Int16Array|Uint16Array|Float32Array|Float64Array;
+
 interface Proxy {
   getURL(resource: string): string;
 }
