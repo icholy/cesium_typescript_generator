@@ -1,4 +1,3 @@
+cesium.d.ts
 *.json
-*.d.ts
 *.txt
-spec.ts
