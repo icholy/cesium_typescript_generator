@@ -25,7 +25,7 @@ function makeGenerator(indent) {
     return "static " + formatMethod(m);
   }
 
-  function formatFixOptionalParameters(items) {
+  function fixOptionalParameters(items) {
     var optionalIndex = items.reduce(function (optionalIndex, item, i) {
       if (item.optional === true) {
         return optionalIndex;
@@ -42,7 +42,7 @@ function makeGenerator(indent) {
     return items;
   }
 
-  function formatConsolodateNestedTypes(items) {
+  function consolodateNestedTypes(items) {
 
     var itemMap  = {};
     var itemList = [];
@@ -142,8 +142,8 @@ function makeGenerator(indent) {
 
   function formatParameters(parameters) {
 
-    parameters = formatConsolodateNestedTypes(parameters);
-    parameters = formatFixOptionalParameters(parameters);
+    parameters = consolodateNestedTypes(parameters);
+    parameters = fixOptionalParameters(parameters);
 
     return parameters.map(function (p) {
 
@@ -173,11 +173,11 @@ function makeGenerator(indent) {
 
     var s = "class " + c.name + " {\n";
 
-    formatConsolodateNestedTypes(c.properties).forEach(function (prop) {
+    consolodateNestedTypes(c.properties).forEach(function (prop) {
       s += indent + formatProperty(prop) + "\n";
     });
 
-    formatConsolodateNestedTypes(c.staticProperties).forEach(function (prop) {
+    consolodateNestedTypes(c.staticProperties).forEach(function (prop) {
       s += indent + formatStaticProperty(prop) + "\n";
     })
 
