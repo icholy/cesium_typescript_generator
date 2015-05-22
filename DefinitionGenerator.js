@@ -1,271 +1,260 @@
 
-var DefinitionGenerator = function () {
-  this.indent = "    ";
-};
+function makeGenerator(indent) {
 
-DefinitionGenerator.prototype.property = function (p) {
-  var s = p.name;
-  if (p.type.length !== 0) {
-    s += this.typeAnnotation(p.type);
-  }
-  return s + ";";
-};
-
-DefinitionGenerator.prototype.staticProperty = function (p) {
-  return "static " + this.property(p);
-};
-
-DefinitionGenerator.prototype.method = function (m) {
-  var _this = this;
-  var s = m.name + "(" + _this.parameters(m.params) + ")";
-  if (m.returns && m.returns.length !== 0) {
-    s += _this.typeAnnotation(m.returns);
-  }
-  return s + ";";
-};
-
-DefinitionGenerator.prototype.staticMethod = function (m) {
-  return "static " + this.method(m);
-};
-
-DefinitionGenerator.prototype.fixOptionalParameters = function (items) {
-  var optionalIndex = items.reduce(function (optionalIndex, item, i) {
-    if (item.optional === true) {
-      return optionalIndex;
+  function formatProperty(p) {
+    var s = p.name;
+    if (p.type.length !== 0) {
+      s += formatTypeAnnotation(p.type);
     }
-    return i;
-  }, 0);
-  items.forEach(function (item, i) {
-    if (i < optionalIndex) {
-      if (typeof item.optional !== 'undefined') {
-        delete item.optional;
+    return s + ";";
+  }
+
+  function formatStaticProperty(p) {
+    return "static " + formatProperty(p);
+  }
+
+  function formatMethod(m) {
+    var s = m.name + "(" + formatParameters(m.params) + ")";
+    if (m.returns && m.returns.length !== 0) {
+      s += formatTypeAnnotation(m.returns);
+    }
+    return s + ";";
+  }
+
+  function formatStaticMethod(m) {
+    return "static " + formatMethod(m);
+  }
+
+  function formatFixOptionalParameters(items) {
+    var optionalIndex = items.reduce(function (optionalIndex, item, i) {
+      if (item.optional === true) {
+        return optionalIndex;
       }
-    }
-  });
-  return items;
-};
-
-DefinitionGenerator.prototype.consolodateNestedTypes = function (items) {
-
-  var itemMap  = {};
-  var itemList = [];
-
-  items.forEach(function (item) {
-
-    if (item.name.indexOf(".") === -1) {
-      itemMap[item.name] = item;
-      itemList.push(item);
-      return;
-    }
-
-    var parts      = item.name.split(".");
-    var parentName = parts[0];
-    var childName  = parts.slice(1).join("");
-    var parent     = itemMap[parentName];
-
-    if (typeof parent === 'undefined') {
-      parent = {
-        name: parentName,
-        type: [{}]
-      };
-      itemMap[parentName] = parent;
-    }
-
-    var typeObj = parent.type[0];
-    if (typeof typeObj !== 'object') {
-      typeObj = {};
-      parent.type[0] = typeObj;
-    }
-
-    typeObj[childName] = { type: item.type };
-    if (item.optional === true) {
-      typeObj[childName].optional = true;
-    }
-
-  });
-
-  return itemList;
-};
-
-DefinitionGenerator.prototype.typeAnnotation = function (type) {
-  var _this = this;
-
-  type = type.filter(function (t) {
-    return t !== 'undefined';
-  });
-
-  if (type.length === 0) {
-    return "";
+      return i;
+    }, 0);
+    items.forEach(function (item, i) {
+      if (i < optionalIndex) {
+        if (typeof item.optional !== 'undefined') {
+          delete item.optional;
+        }
+      }
+    });
+    return items;
   }
 
-  return ": " + _this.type(type);
-};
+  function formatConsolodateNestedTypes(items) {
 
-DefinitionGenerator.prototype.type = function (type) {
-  
-  var _this = this;
+    var itemMap  = {};
+    var itemList = [];
 
-  var s = "";
+    items.forEach(function (item) {
 
-  if (typeof type === 'undefined') {
-    return 'void';
+      if (item.name.indexOf(".") === -1) {
+        itemMap[item.name] = item;
+        itemList.push(item);
+        return;
+      }
+
+      var parts      = item.name.split(".");
+      var parentName = parts[0];
+      var childName  = parts.slice(1).join("");
+      var parent     = itemMap[parentName];
+
+      if (typeof parent === 'undefined') {
+        parent = {
+          name: parentName,
+          type: [{}]
+        };
+        itemMap[parentName] = parent;
+      }
+
+      var typeObj = parent.type[0];
+      if (typeof typeObj !== 'object') {
+        typeObj = {};
+        parent.type[0] = typeObj;
+      }
+
+      typeObj[childName] = { type: item.type };
+      if (item.optional === true) {
+        typeObj[childName].optional = true;
+      }
+
+    });
+
+    return itemList;
   }
 
-  type = type.filter(function (t) {
-    return t !== 'undefined';
-  });
+  function formatTypeAnnotation(type) {
 
-  if (type.length === 0) {
-    return "";
+    type = type.filter(function (t) {
+      return t !== 'undefined';
+    });
+
+    if (type.length === 0) {
+      return "";
+    }
+
+    return ": " + formatType(type);
   }
 
-  if (typeof type[0] === 'object') {
+  function formatType(type) {
     
-    var typeObj = type[0];
-    
-    s += "{ ";
+    var s = "";
 
-    s += Object.keys(typeObj).map(function (name) {
+    if (typeof type === 'undefined') {
+      return 'void';
+    }
 
-      var p = typeObj[name];
-      var s = name;
+    type = type.filter(function (t) {
+      return t !== 'undefined';
+    });
+
+    if (type.length === 0) {
+      return "";
+    }
+
+    if (typeof type[0] === 'object') {
+      
+      var typeObj = type[0];
+      
+      s += "{ ";
+
+      s += Object.keys(typeObj).map(function (name) {
+
+        var p = typeObj[name];
+        var s = name;
+
+        if (p.optional === true) {
+          s += "?";
+        }
+
+        s += formatTypeAnnotation(p.type);
+        return s;
+      }).join("; ");
+
+      s += " }";
+
+    } else {
+      s += type.join("|");
+    }
+    return s;
+  }
+
+  function formatParameters(parameters) {
+
+    parameters = formatConsolodateNestedTypes(parameters);
+    parameters = formatFixOptionalParameters(parameters);
+
+    return parameters.map(function (p) {
+
+      var s = p.name;
 
       if (p.optional === true) {
         s += "?";
       }
 
-      s += _this.typeAnnotation(p.type);
-      return s;
-    }).join("; ");
-
-    s += " }";
-
-  } else {
-    s += type.join("|");
+      return s + formatTypeAnnotation(p.type);
+    }).join(", ");
   }
-  return s;
-};
 
-DefinitionGenerator.prototype.parameters = function (parameters) {
+  function formatTypeDef(td) {
+    if (td.type.length === 1 &&
+        (
+          typeof td.params !== 'undefined' ||
+          typeof td.returns !== 'undefined'
+        )) {
 
-  var _this = this;
+      return "type " + td.name + " = " + "(" + formatParameters(td.params) + ") => " + formatType(td.returns) + ";";
+    }
+    return "type " + td.name + " = " + formatType(td.type) + ";";
+  }
 
-  parameters = this.consolodateNestedTypes(parameters);
-  parameters = this.fixOptionalParameters(parameters);
+  function formatClass(c) {
 
-  return parameters.map(function (p) {
+    var s = "class " + c.name + " {\n";
 
-    var s = p.name;
+    formatConsolodateNestedTypes(c.properties).forEach(function (prop) {
+      s += indent + formatProperty(prop) + "\n";
+    });
 
-    if (p.optional === true) {
-      s += "?";
+    formatConsolodateNestedTypes(c.staticProperties).forEach(function (prop) {
+      s += indent + formatStaticProperty(prop) + "\n";
+    })
+
+    if (c.constructor.length !== 0) {
+      s += indent + "constructor(" + formatParameters(c.constructor) + ");\n";
     }
 
-    return s + _this.typeAnnotation(p.type);
-  }).join(", ");
-};
+    c.methods.forEach(function (method) {
+      s += indent + formatMethod(method) + "\n";
+    });
 
-DefinitionGenerator.prototype.typeDef = function (td) {
-  var _this = this;
-  if (td.type.length === 1 &&
-      (
-        typeof td.params !== 'undefined' ||
-        typeof td.returns !== 'undefined'
-      )) {
-
-    return "type " + td.name + " = " + "(" + _this.parameters(td.params) + ") => " + _this.type(td.returns) + ";";
-  }
-  return "type " + td.name + " = " + _this.type(td.type) + ";";
-};
-
-DefinitionGenerator.prototype.clazz = function (c) {
-
-  var _this = this;
-
-  var s = "class " + c.name + " {\n";
-
-  _this.consolodateNestedTypes(c.properties).forEach(function (prop) {
-    s += _this.indent + _this.property(prop) + "\n";
-  });
-
-  _this.consolodateNestedTypes(c.staticProperties).forEach(function (prop) {
-    s += _this.indent + _this.staticProperty(prop) + "\n";
-  })
-
-  if (c.constructor.length !== 0) {
-    s += _this.indent + "constructor(" + _this.parameters(c.constructor) + ");\n";
-  }
-
-  c.methods.forEach(function (method) {
-    s += _this.indent + _this.method(method) + "\n";
-  });
-
-  c.staticMethods.forEach(function (method) {
-    s += _this.indent + _this.staticMethod(method) + "\n";
-  });
-
-  s += "}";
-
-  if (c.typedefs.length !== 0) {
-
-    s += "\n\nmodule " + c.name + "{\n";
-
-    c.typedefs.forEach(function (typedef) {
-      s += _this.indent + _this.typeDef(typedef) + "\n";
+    c.staticMethods.forEach(function (method) {
+      s += indent + formatStaticMethod(method) + "\n";
     });
 
     s += "}";
 
-  }
-  return s;
-};
+    if (c.typedefs.length !== 0) {
 
-DefinitionGenerator.prototype.enum = function (n) {
-  var _this = this;
-  var s = "enum " + n.name + " {\n";
-  n.properties.forEach(function (p) {
-    s += _this.indent + p.name + ",\n";
-  });
-  return s + "}";
-};
+      s += "\n\nmodule " + c.name + "{\n";
 
-DefinitionGenerator.prototype.namespace = function (n) {
-  var _this = this;
-  var s = "module " + n.name + " {\n";
-  n.methods.forEach(function (method) {
-    s += _this.indent + "function " + _this.method(method) + "\n";
-  });
-  return s + "}";
-};
-
-DefinitionGenerator.prototype.generate = function (info) {
-  var _this = this;
-  var s = "";
-  info.classes.forEach(function (c) {
-    s += "\n\n" + _this.clazz(c);
-  })
-  info.functions.forEach(function (f) {
-    s += "\n\nfunction "  + _this.method(f);
-
-    if (f.typedefs.length !== 0) {
-      s += "\n\nmodule " + f.name + " {\n";
-      f.typedefs.forEach(function (typedef) {
-        s += _this.indent + _this.typeDef(typedef) + "\n";
+      c.typedefs.forEach(function (typedef) {
+        s += indent + formatTypeDef(typedef) + "\n";
       });
-      s += "}";
-    }
-    
-    return s;
-  });
-  info.namespaces.forEach(function (n) {
-    if (n.properties.length !== 0) {
-      s += "\n\n" + _this.enum(n);
-    }
-    if (n.methods.length !== 0) {
-      s += "\n\n" + _this.namespace(n);
-    }
-  });
-  return s;
-};
 
-module.exports = DefinitionGenerator;
+      s += "}";
+
+    }
+    return s;
+  }
+
+  function formatEnum(n) {
+    var s = "enum " + n.name + " {\n";
+    n.properties.forEach(function (p) {
+      s += indent + p.name + ",\n";
+    });
+    return s + "}";
+  }
+
+  function formatNamespace(n) {
+    var s = "module " + n.name + " {\n";
+    n.methods.forEach(function (method) {
+      s += indent + "function " + formatMethod(method) + "\n";
+    });
+    return s + "}";
+  }
+
+  function generate(info) {
+    var s = "";
+    info.classes.forEach(function (c) {
+      s += "\n\n" + formatClass(c);
+    })
+    info.functions.forEach(function (f) {
+      s += "\n\nfunction "  + formatMethod(f);
+
+      if (f.typedefs.length !== 0) {
+        s += "\n\nmodule " + f.name + " {\n";
+        f.typedefs.forEach(function (typedef) {
+          s += indent + formatTypeDef(typedef) + "\n";
+        });
+        s += "}";
+      }
+      
+      return s;
+    });
+    info.namespaces.forEach(function (n) {
+      if (n.properties.length !== 0) {
+        s += "\n\n" + formatEnum(n);
+      }
+      if (n.methods.length !== 0) {
+        s += "\n\n" + formatNamespace(n);
+      }
+    });
+    return s;
+  }
+
+  return generate;
+}
+
+module.exports = makeGenerator;

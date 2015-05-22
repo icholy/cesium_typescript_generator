@@ -1,7 +1,7 @@
 
 var fs = require('fs');
 var parseJSDoc = require('./JSDOCParser');
-var DefinitionGenerator = require('./DefinitionGenerator');
+var makeGenerator = require('./DefinitionGenerator');
 
 if (process.argv.length < 3) {
   console.log("please pass a jsdoc json output filename");
@@ -17,11 +17,16 @@ fs.readFile(input, function (err, data) {
     throw err;
   }
 
+  // jsdoc output
   var results = JSON.parse(data);
-  var generator = new DefinitionGenerator();
 
+  // convert to more strutured data
   var info = parseJSDoc(results);
-  var defs = generator.generate(info);
+
+  // emit typescript
+  var indent = "    ";
+  var generate = makeGenerator(indent);
+  var defs = generate(info);
 
   fs.readFile('cesium.d.ts.template', function (err, data) {
 
@@ -30,6 +35,7 @@ fs.readFile(input, function (err, data) {
       throw err;
     }
 
+    // add generated code to template with boilerplate
     console.log(
         data.toString().replace('{{HERE}}', defs));
   });
