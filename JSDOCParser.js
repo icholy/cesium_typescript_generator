@@ -1,10 +1,7 @@
 
 var TypeParser = require("./TypeParser");
 
-var JSDOCParser = function () {};
-
-JSDOCParser.prototype.parseType = function (t) {
-  var _this = this;
+function parseType(t) {
   if (typeof t === 'undefined') {
     return [];
   }
@@ -14,69 +11,66 @@ JSDOCParser.prototype.parseType = function (t) {
   return t.names.map(function (name) {
     return TypeParser.reformat(name);
   });
-};
+}
 
-JSDOCParser.prototype.parseReturn = function (r) {
-  var _this = this;
+function parseReturn(r) {
   if (typeof r === 'undefined') {
     return undefined;
   }
   if (r.length === 1) {
-    return this.parseType(r[0].type);
+    return parseType(r[0].type);
   } else {
     return r.map(function (r) {
-      return _this.parseType(r.type);
+      return parseType(r.type);
     });
   }
-};
+}
 
-JSDOCParser.prototype.parseProperty = function (r) {
+function parseProperty(r) {
   return {
     name:  r.name,
-    type:  this.parseType(r.type)
+    type:  parseType(r.type)
   };
-};
+}
 
-JSDOCParser.prototype.parseMethod = function (r) {
+function parseMethod(r) {
   return {
     name:    r.name,
-    params:  this.parseParams(r.params),
-    returns: this.parseReturn(r.returns)
+    params:  parseParams(r.params),
+    returns: parseReturn(r.returns)
   }
-};
+}
 
-JSDOCParser.prototype.parseParam = function (p) {
+function parseParam(p) {
   if (typeof p === 'undefined') {
     return undefined;
   }
   return {
     name:     p.name,
     optional: p.optional,
-    type:     this.parseType(p.type)
+    type:     parseType(p.type)
   };
-};
+}
 
-JSDOCParser.prototype.parseParams = function (params) {
-  var _this = this;
+function parseParams(params) {
   if (typeof params === 'undefined') {
     return [];
   }
   return params.map(function (p) {
-    return _this.parseParam(p);
+    return parseParam(p);
   });
-};
+}
 
-JSDOCParser.prototype.parseTypeDef = function (td) {
-  var _this = this;
+function parseTypeDef(td) {
   return {
     name:    td.name,
-    type:    _this.parseType(td.type),
-    params:  _this.parseParams(td.params),
-    returns: _this.parseReturn(td.returns)
+    type:    parseType(td.type),
+    params:  parseParams(td.params),
+    returns: parseReturn(td.returns)
   };
-};
+}
 
-JSDOCParser.prototype.parse = function (results) {
+function parse(results) {
 
   var isDocumented = function (r) {
     return r.undocumented !== true;
@@ -158,8 +152,6 @@ JSDOCParser.prototype.parse = function (results) {
     return r.kind === 'typedef';
   };
 
-  var _this = this;
-
   var documented = results.filter(isPublic).filter(isDocumented);
 
   var classes = documented.filter(isClass).map(function (c) {
@@ -170,17 +162,17 @@ JSDOCParser.prototype.parse = function (results) {
 
     return {
       name:             c.name,
-      constructor:      _this.parseParams(c.params),
-      methods:          instance.filter(isFunction).map(_this.parseMethod.bind(_this)),
-      properties:       instance.filter(isProperty).map(_this.parseProperty.bind(_this)),
-      staticProperties: static.filter(isProperty).map(_this.parseProperty.bind(_this)),
-      staticMethods:    static.filter(isFunction).map(_this.parseMethod.bind(_this)),
-      typedefs:         members.filter(isTypeDef).map(_this.parseTypeDef.bind(_this))
+      constructor:      parseParams(c.params),
+      methods:          instance.filter(isFunction).map(parseMethod),
+      properties:       instance.filter(isProperty).map(parseProperty),
+      staticProperties: static.filter(isProperty).map(parseProperty),
+      staticMethods:    static.filter(isFunction).map(parseMethod),
+      typedefs:         members.filter(isTypeDef).map(parseTypeDef)
     };
   });
 
-  var functions = documented.filter(isGlobalFunction).map(_this.parseMethod.bind(_this)).map(function (f) {
-    f.typedefs = documented.filter(isMemberOf(f.name)).filter(isTypeDef).map(_this.parseTypeDef.bind(_this))
+  var functions = documented.filter(isGlobalFunction).map(parseMethod).map(function (f) {
+    f.typedefs = documented.filter(isMemberOf(f.name)).filter(isTypeDef).map(parseTypeDef)
     return f;
   });
 
@@ -190,8 +182,8 @@ JSDOCParser.prototype.parse = function (results) {
 
     return {
       name:       n.name,
-      properties: members.filter(isProperty).map(_this.parseProperty.bind(_this)),
-      methods:    members.filter(isFunction).map(_this.parseMethod.bind(_this))
+      properties: members.filter(isProperty).map(parseProperty),
+      methods:    members.filter(isFunction).map(parseMethod)
     };
   });
 
@@ -200,6 +192,6 @@ JSDOCParser.prototype.parse = function (results) {
     functions:  functions,
     namespaces: namespaces
   };
-};
+}
 
-module.exports = JSDOCParser;
+module.exports = parse;

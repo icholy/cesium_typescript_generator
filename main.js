@@ -1,6 +1,6 @@
 
 var fs = require('fs');
-var JSDOCParser = require('./JSDOCParser');
+var parseJSDoc = require('./JSDOCParser');
 var DefinitionGenerator = require('./DefinitionGenerator');
 
 if (process.argv.length < 3) {
@@ -18,10 +18,9 @@ fs.readFile(input, function (err, data) {
   }
 
   var results = JSON.parse(data);
-  var parser = new JSDOCParser();
   var generator = new DefinitionGenerator();
 
-  var info = parser.parse(results);
+  var info = parseJSDoc(results);
   var defs = generator.generate(info);
 
   fs.readFile('cesium.d.ts.template', function (err, data) {
