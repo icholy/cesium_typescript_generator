@@ -3,7 +3,7 @@ var TypeParser = require("./TypeParser");
 
 var JSDOCParser = function () {};
 
-JSDOCParser.prototype.formatType = function (t) {
+JSDOCParser.prototype.parseType = function (t) {
   var _this = this;
   if (typeof t === 'undefined') {
     return [];
@@ -16,63 +16,63 @@ JSDOCParser.prototype.formatType = function (t) {
   });
 };
 
-JSDOCParser.prototype.formatReturn = function (r) {
+JSDOCParser.prototype.parseReturn = function (r) {
   var _this = this;
   if (typeof r === 'undefined') {
     return undefined;
   }
   if (r.length === 1) {
-    return this.formatType(r[0].type);
+    return this.parseType(r[0].type);
   } else {
     return r.map(function (r) {
-      return _this.formatType(r.type);
+      return _this.parseType(r.type);
     });
   }
 };
 
-JSDOCParser.prototype.formatProperty = function (r) {
+JSDOCParser.prototype.parseProperty = function (r) {
   return {
     name:  r.name,
-    type:  this.formatType(r.type)
+    type:  this.parseType(r.type)
   };
 };
 
-JSDOCParser.prototype.formatMethod = function (r) {
+JSDOCParser.prototype.parseMethod = function (r) {
   return {
     name:    r.name,
-    params:  this.formatParams(r.params),
-    returns: this.formatReturn(r.returns)
+    params:  this.parseParams(r.params),
+    returns: this.parseReturn(r.returns)
   }
 };
 
-JSDOCParser.prototype.formatParam = function (p) {
+JSDOCParser.prototype.parseParam = function (p) {
   if (typeof p === 'undefined') {
     return undefined;
   }
   return {
     name:     p.name,
     optional: p.optional,
-    type:     this.formatType(p.type)
+    type:     this.parseType(p.type)
   };
 };
 
-JSDOCParser.prototype.formatParams = function (params) {
+JSDOCParser.prototype.parseParams = function (params) {
   var _this = this;
   if (typeof params === 'undefined') {
     return [];
   }
   return params.map(function (p) {
-    return _this.formatParam(p);
+    return _this.parseParam(p);
   });
 };
 
-JSDOCParser.prototype.formatTypeDef = function (td) {
+JSDOCParser.prototype.parseTypeDef = function (td) {
   var _this = this;
   return {
     name:    td.name,
-    type:    _this.formatType(td.type),
-    params:  _this.formatParams(td.params),
-    returns: _this.formatReturn(td.returns)
+    type:    _this.parseType(td.type),
+    params:  _this.parseParams(td.params),
+    returns: _this.parseReturn(td.returns)
   };
 };
 
@@ -170,17 +170,17 @@ JSDOCParser.prototype.parse = function (results) {
 
     return {
       name:             c.name,
-      constructor:      _this.formatParams(c.params),
-      methods:          instance.filter(isFunction).map(_this.formatMethod.bind(_this)),
-      properties:       instance.filter(isProperty).map(_this.formatProperty.bind(_this)),
-      staticProperties: static.filter(isProperty).map(_this.formatProperty.bind(_this)),
-      staticMethods:    static.filter(isFunction).map(_this.formatMethod.bind(_this)),
-      typedefs:         members.filter(isTypeDef).map(_this.formatTypeDef.bind(_this))
+      constructor:      _this.parseParams(c.params),
+      methods:          instance.filter(isFunction).map(_this.parseMethod.bind(_this)),
+      properties:       instance.filter(isProperty).map(_this.parseProperty.bind(_this)),
+      staticProperties: static.filter(isProperty).map(_this.parseProperty.bind(_this)),
+      staticMethods:    static.filter(isFunction).map(_this.parseMethod.bind(_this)),
+      typedefs:         members.filter(isTypeDef).map(_this.parseTypeDef.bind(_this))
     };
   });
 
-  var functions = documented.filter(isGlobalFunction).map(_this.formatMethod.bind(_this)).map(function (f) {
-    f.typedefs = documented.filter(isMemberOf(f.name)).filter(isTypeDef).map(_this.formatTypeDef.bind(_this))
+  var functions = documented.filter(isGlobalFunction).map(_this.parseMethod.bind(_this)).map(function (f) {
+    f.typedefs = documented.filter(isMemberOf(f.name)).filter(isTypeDef).map(_this.parseTypeDef.bind(_this))
     return f;
   });
 
@@ -190,8 +190,8 @@ JSDOCParser.prototype.parse = function (results) {
 
     return {
       name:       n.name,
-      properties: members.filter(isProperty).map(_this.formatProperty.bind(_this)),
-      methods:    members.filter(isFunction).map(_this.formatMethod.bind(_this))
+      properties: members.filter(isProperty).map(_this.parseProperty.bind(_this)),
+      methods:    members.filter(isFunction).map(_this.parseMethod.bind(_this))
     };
   });
 
