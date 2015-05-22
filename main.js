@@ -1,7 +1,7 @@
 
 var fs = require('fs');
 var parseJSDoc = require('./JSDOCParser');
-var makeGenerator = require('./DefinitionGenerator');
+var generate = require('./DefinitionGenerator');
 
 if (process.argv.length < 3) {
   console.log("please pass a jsdoc json output filename");
@@ -25,7 +25,6 @@ fs.readFile(input, function (err, data) {
 
   // emit typescript
   var indent = "    ";
-  var generate = makeGenerator(indent);
   var defs = generate(info);
 
   fs.readFile('cesium.d.ts.template', function (err, data) {
