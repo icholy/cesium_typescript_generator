@@ -1,6 +1,165 @@
 
 var TypeParser = require("./TypeParser");
 
+var isDocumented = function (r) {
+  return r.undocumented !== true;
+};
+
+var isPublic = function (r) {
+  return r.access !== "private";
+};
+
+var isInstance = function (r) {
+  return r.scope === 'instance';
+};
+
+var isStatic = function (r) {
+  return r.scope === 'static';
+};
+
+var isClass = function (r) {
+  if (r.kind !== 'class') {
+    return false;
+  }
+  if (typeof r.memberof !== 'undefined') {
+    return false;
+  }
+  return true;
+};
+
+var isMemberOf = function (type) {
+  return function (r) {
+    return r['memberof'] === type;
+  };
+};
+
+var isGlobalFunction = function (r) {
+  if (r.kind !== 'module') {
+    return false;
+  }
+  if (typeof r.params === 'undefined') {
+    return false;
+  }
+  if (r.access === "private") {
+    return false;
+  }
+  return true;
+};
+
+var isFunction = function (r) {
+  if (r.kind !== 'function') {
+    return false;
+  }
+  if (r.name.indexOf("_") === 0) {
+    return false;
+  }
+  return true;
+};
+
+var isProperty = function (r) {
+  if (r.kind !== 'member' && r.kind !== 'constant') {
+    return false;
+  }
+  if (r.type === 'undefined') {
+    return false;
+  }
+  if (r.name.indexOf("_") === 0) {
+    return false;
+  }
+  return true;
+};
+
+var isConstant = function (r) {
+  return r.kind === 'constant';
+};
+
+var isNamespace = function (r) {
+  return r.kind === 'namespace';
+};
+
+var isTypeDef = function (r) {
+  return r.kind === 'typedef';
+};
+var isDocumented = function (r) {
+  return r.undocumented !== true;
+};
+
+var isPublic = function (r) {
+  return r.access !== "private";
+};
+
+var isInstance = function (r) {
+  return r.scope === 'instance';
+};
+
+var isStatic = function (r) {
+  return r.scope === 'static';
+};
+
+var isClass = function (r) {
+  if (r.kind !== 'class') {
+    return false;
+  }
+  if (typeof r.memberof !== 'undefined') {
+    return false;
+  }
+  return true;
+};
+
+var isMemberOf = function (type) {
+  return function (r) {
+    return r['memberof'] === type;
+  };
+};
+
+var isGlobalFunction = function (r) {
+  if (r.kind !== 'module') {
+    return false;
+  }
+  if (typeof r.params === 'undefined') {
+    return false;
+  }
+  if (r.access === "private") {
+    return false;
+  }
+  return true;
+};
+
+var isFunction = function (r) {
+  if (r.kind !== 'function') {
+    return false;
+  }
+  if (r.name.indexOf("_") === 0) {
+    return false;
+  }
+  return true;
+};
+
+var isProperty = function (r) {
+  if (r.kind !== 'member' && r.kind !== 'constant') {
+    return false;
+  }
+  if (r.type === 'undefined') {
+    return false;
+  }
+  if (r.name.indexOf("_") === 0) {
+    return false;
+  }
+  return true;
+};
+
+var isConstant = function (r) {
+  return r.kind === 'constant';
+};
+
+var isNamespace = function (r) {
+  return r.kind === 'namespace';
+};
+
+var isTypeDef = function (r) {
+  return r.kind === 'typedef';
+};
+
 function parseType(t) {
   if (typeof t === 'undefined') {
     return [];
@@ -71,86 +230,6 @@ function parseTypeDef(td) {
 }
 
 function parse(results) {
-
-  var isDocumented = function (r) {
-    return r.undocumented !== true;
-  };
-
-  var isPublic = function (r) {
-    return r.access !== "private";
-  };
-
-  var isInstance = function (r) {
-    return r.scope === 'instance';
-  };
-
-  var isStatic = function (r) {
-    return r.scope === 'static';
-  };
-
-  var isClass = function (r) {
-    if (r.kind !== 'class') {
-      return false;
-    }
-    if (typeof r.memberof !== 'undefined') {
-      return false;
-    }
-    return true;
-  };
-
-  var isMemberOf = function (type) {
-    return function (r) {
-      return r['memberof'] === type;
-    };
-  };
-
-  var isGlobalFunction = function (r) {
-    if (r.kind !== 'module') {
-      return false;
-    }
-    if (typeof r.params === 'undefined') {
-      return false;
-    }
-    if (r.access === "private") {
-      return false;
-    }
-    return true;
-  };
-
-  var isFunction = function (r) {
-    if (r.kind !== 'function') {
-      return false;
-    }
-    if (r.name.indexOf("_") === 0) {
-      return false;
-    }
-    return true;
-  };
-
-  var isProperty = function (r) {
-    if (r.kind !== 'member' && r.kind !== 'constant') {
-      return false;
-    }
-    if (r.type === 'undefined') {
-      return false;
-    }
-    if (r.name.indexOf("_") === 0) {
-      return false;
-    }
-    return true;
-  };
-
-  var isConstant = function (r) {
-    return r.kind === 'constant';
-  };
-
-  var isNamespace = function (r) {
-    return r.kind === 'namespace';
-  };
-  
-  var isTypeDef = function (r) {
-    return r.kind === 'typedef';
-  };
 
   var documented = results.filter(isPublic).filter(isDocumented);
 
